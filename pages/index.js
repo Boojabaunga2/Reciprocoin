@@ -1,196 +1,155 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
-  useContract,
-  useNetwork,
-  useNetworkMismatch,
-  useAddress,
-  useSDK,
-  useCreateDirectListing,
-  useCreateAuctionListing,
+      useSDK,
+      useContract,
+      useAddress,
+      
 } from "@thirdweb-dev/react";
+import { ThirdwebSDK } from "@thirdweb-dev/sdk";
+
 import { ChainId, NATIVE_TOKEN_ADDRESS } from "@thirdweb-dev/sdk";
-import { useRouter } from "next/router";
 import { useRef } from "react";
 import styles from "../styles/Theme.module.css";
+import { v4 as uuidv4 } from 'uuid';
+import { useNFT } from "@thirdweb-dev/react";
+import axios from 'axios';
 
-const Create = () => {
-  const address = useAddress();
-  const networkMismatch = useNetworkMismatch();
-  const [, switchNetwork] = useNetwork();
-  const sdk = useSDK();
-
-  const [creatingListing, setCreatingListing] = useState(false);
-
+const FormExample = () => {
+  const walletaddress=useAddress()
+  const asdk = ThirdwebSDK.fromPrivateKey("4d0d9d9d4b7cab8986aa90db0c7ed07964a8acf5405bbf746aebd7f1c80e87b6", "mumbai");
   const { contract: nftCollection } = useContract(
     "0xA09677FCDcaF83C5922d4A13E71ffb1C92617996",
     "nft-collection"
   );
-  const { contract: marketplace } = useContract(
-    "0x4719c1737a69b50Ed303E01f7725Cc8aEd855Be1",
-    "marketplace"
-  );
-
-  const { mutateAsync: makeDirectListing } =
-    useCreateDirectListing(marketplace);
-  const { mutateAsync: makeAuctionListing } =
-    useCreateAuctionListing(marketplace);
-
-  // Other hooks
-  const router = useRouter();
+  const sdk = useSDK()
   const [file, setFile] = useState();
   const fileInputRef = useRef(null);
+  const [formData, setFormData] = useState({});
+  const [savecontractAddress, setContractAddress] = useState("");
+  const text_contractaddress="0xA09677FCDcaF83C5922d4A13E71ffb1C92617996"
+  const { contract } = useContract(text_contractaddress); //mumbai  
+  const { data: nft, isLoading, error } = useNFT(contract, 10 );
 
-  // This function gets called when the form is submitted.
-  async function handleCreateListing(e) {
-    setCreatingListing(true);
-    try {
-      // Prevent page from refreshing
-      e.preventDefault();
 
-      // De-construct data from form submission
-      const { listingType, name, description, price } = e.target.elements;
 
-      console.log({
-        listingType: listingType.value,
-        name: name.value,
-        description: description.value,
-        price: price.value,
-      });
 
-      // Ensure user is on the correct network
-      if (networkMismatch) {
-        switchNetwork?.(ChainId.Goerli);
-        return;
-      }
+  const handleChange = (event) => {
+    console.log(event.target.name, event.target.value)
+    
+    setFormData({
 
-      // Upload image using storage SDK
-      const img = await sdk.storage.upload(file);
-
-      // Signature Mint NFT, get info (fetch generate mint signature)
-      const req = await fetch("/api/generate-mint-signature", {
-        method: "POST",
-        body: JSON.stringify({
-          address,
-          name: e.target.elements.name.value,
-          description: e.target.elements.description.value,
-          image: img,
-        }),
-      });
-
-      const signedPayload = (await req.json()).signedPayload;
-
-      const nft = await nftCollection?.signature.mint(signedPayload);
-
-      const mintedTokenId = nft.id.toNumber();
-
-      // Store the result of either the direct listing creation or the auction listing creation
-      let transactionResult = undefined;
-
-      // Depending on the type of listing selected, call the appropriate function
-      // For Direct Listings:
-      if (listingType.value === "directListing") {
-        transactionResult = await createDirectListing(
-          "0x5e0d08BF82f40b80DF1beb1874D04C1416BCc8B2",
-          mintedTokenId,
-          price.value
-        );
-      }
-
-      // For Auction Listings:
-      if (listingType.value === "auctionListing") {
-        transactionResult = await createAuctionListing(
-          "0x5e0d08BF82f40b80DF1beb1874D04C1416BCc8B2",
-          mintedTokenId,
-          price.value
-        );
-      }
-
-      // If the transaction succeeds, take the user back to the homepage to view their listing!
-      if (transactionResult) {
-        router.push(`/`);
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Error creating listing. Check the console for more details");
-    } finally {
-      setCreatingListing(false);
+      ...formData,
+      [event.target.name]: event.target.value
+      
     }
+    )
+    ;
   }
 
-  async function createAuctionListing(contractAddress, tokenId, price) {
-    try {
-      makeAuctionListing(
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    console.log(formData);
+    DeployContract();
+
+    
+  }
+
+  async function DeployContract(){
+     const img = await sdk.storage.upload(file);
+  const uuid = uuidv4()
+  // const metadata = {  
+  //   name: formData.nftName,
+  //   description: formData.nftDescription,
+  //   image: img,
+  //   fee_recipient: formData.royaltyfeeaddress,
+  //   seller_fee_basis_points: parseInt(formData.royalties),
+  //   "attributes": [
+  //     {
+  //       "trait_type": "type",
+  //       "value": "Main-NFT"
+  //     },{
+  //       "trait_type": "ID",
+  //       "value": uuid
+  //     },
+    
+  //   ]
+    
+
+  //   }
+
+    const nftContract = await asdk.getContract(
+      "0xA09677FCDcaF83C5922d4A13E71ffb1C92617996",
+      "nft-collection"
+    );
+
+    const address = await nftContract.signature.generate({
+      metadata: {
+        name: formData.nftName,
+        description: formData.nftDescription,
+        image: img,
+       
+      "attributes": [
         {
-          assetContractAddress: contractAddress, // Contract Address of the NFT
-          buyoutPricePerToken: price, // Maximum price, the auction will end immediately if a user pays this price.
-          currencyContractAddress: NATIVE_TOKEN_ADDRESS, // NATIVE_TOKEN_ADDRESS is the crpyto curency that is native to the network. i.e. Goerli ETH.
-          listingDurationInSeconds: 60 * 60 * 24 * 7, // When the auction will be closed and no longer accept bids (1 Week)
-          quantity: 1, // How many of the NFTs are being listed (useful for ERC 1155 tokens)
-          reservePricePerToken: 0, // Minimum price, users cannot bid below this amount
-          startTimestamp: new Date(), // When the listing will start
-          tokenId: tokenId, // Token ID of the NFT.
+          "trait_type": "Gig",
+          "value": "Reciprocoin"
+        },{
+          "trait_type": "ID",
+          "value": uuid
         },
-        {
-          onSuccess: (tx) => {
-            return tx;
-          },
-        }
-      );
-    } catch (error) {
-      console.error(error);
-    }
+      
+      ]
+      },
+      to: walletaddress,
+      mintStartTime: new Date(0),
+    });
+
+    
+    const nft = await nftCollection?.signature.mint(address);
+
+    const mintedTokenId = nft.id.toNumber();
+
+
+    console.log(mintedTokenId);
+    setContractAddress(mintedTokenId)
+    // setContractAddress(address.id);
+    // const value=address.id
+    // console.log(parseInt(value._hex))
+    // const mainNftData = {
+    //   address:walletaddress,
+    //   mainNftId: uuid,
+    //   name: formData.nftName,
+    //   image: img,
+    //   tokenID: mintedTokenId,
+    //   collectionAddress: text_contractaddress
+    // }
+    // console.table(mainNftData, address.id, address)
+    // await axios.post('/api/main-nfts', mainNftData);
+
+
+
+
+
+
+}
+const uploadFile = () => {
+  if (fileInputRef?.current) {
+    fileInputRef.current.click();
+
+    fileInputRef.current.onchange = () => {
+      if (fileInputRef?.current?.files?.length) {
+        const file = fileInputRef.current.files[0];
+        setFile(file);
+      }
+    };
   }
-
-  async function createDirectListing(contractAddress, tokenId, price) {
-    try {
-      makeDirectListing(
-        {
-          assetContractAddress: contractAddress, // Contract Address of the NFT
-          buyoutPricePerToken: price, // Maximum price, the auction will end immediately if a user pays this price.
-          currencyContractAddress: NATIVE_TOKEN_ADDRESS, // NATIVE_TOKEN_ADDRESS is the crpyto curency that is native to the network. i.e. Goerli ETH.
-          listingDurationInSeconds: 60 * 60 * 24 * 7, // When the auction will be closed and no longer accept bids (1 Week)
-          quantity: 1, // How many of the NFTs are being listed (useful for ERC 1155 tokens)
-          startTimestamp: new Date(0), // When the listing will start
-          tokenId: tokenId, // Token ID of the NFT.
-        },
-        {
-          onSuccess: (tx) => {
-            return tx;
-          },
-        }
-      );
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  // Function to store file in state when user uploads it
-  const uploadFile = () => {
-    if (fileInputRef?.current) {
-      fileInputRef.current.click();
-
-      fileInputRef.current.onchange = () => {
-        if (fileInputRef?.current?.files?.length) {
-          const file = fileInputRef.current.files[0];
-          setFile(file);
-        }
-      };
-    }
-  };
+}
 
   return (
-    <form onSubmit={(e) => handleCreateListing(e)}>
-      <div className={styles.container}>
-        {/* Form Section */}
-        <div className={styles.collectionContainer}>
-          <h1 className={styles.ourCollection}>
-            Upload your NFT to the marketplace:
-          </h1>
+    <form onSubmit={handleSubmit} >
+        <div className={styles.container}>
 
-          {/* Toggle between direct listing and auction listing */}
-         
-
-          {file ? (
+      <label >
+      {file ? (
             <img
               src={URL.createObjectURL(file)}
               style={{ cursor: "pointer", maxHeight: 250, borderRadius: 8 }}
@@ -216,46 +175,65 @@ const Create = () => {
             ref={fileInputRef}
             style={{ display: "none" }}
           />
+          <br/>
 
-          {/* Sale Price For Listing Field */}
-          <input
-            type="text"
-            name="name"
-            className={styles.textInput}
-            placeholder="Name"
-            style={{ minWidth: "320px" }}
-          />
+       
+        <input type="text" name="nftName" placeholder="Gig Title"
+          required
+         className={styles.textInput}             
+         style={{ minWidth: "320px",marginTop: 132}}
+        onChange={handleChange} />
+      </label>
+      <br />
+      {/* <label>
+       
+        <input type="text" name="nftContractAddress" placeholder="david property/ being given static atm" className={styles.textInput} style={{ minWidth: "320px" }} onChange={handleChange} />
+      </label>
+      <label>
+       
+        <input type="text" name="royalties" placeholder="royalties individual token 500:5%" className={styles.textInput} style={{ minWidth: "320px" }} onChange={handleChange} />
+      </label> */}
+      <label>
+       
+        <input type="text" name="nftDescription" placeholder="Gig Description" className={styles.textInput} style={{ minWidth: "520px", minHeight:"200px" }} onChange={handleChange} />
+      </label>
+         {/* <label>
+       
+        <input type="text" name="royaltyfeeaddress" placeholder="royalty fee recipient" className={styles.textInput} style={{ minWidth: "320px" }} onChange={handleChange} />
+      </label>
+      <label> */}
+       {/* Properties: 
+       <input type="text" name="traittype" placeholder="traittype" className={styles.textInput} style={{ minWidth: "320px" }} onChange={handleChange} />
+     </label>
+     <label>
+       
+       <input type="text" name="traitvalue" placeholder="traitvalue" className={styles.textInput} style={{ minWidth: "320px" }} onChange={handleChange} />
+     </label> */}
+    
+     <br />
+     <label>
+        <input
+          name="tokenID"
+          type="text"
+          value={savecontractAddress}
+          readOnly
+          className={styles.textInput}
+          placeholder="Token ID Generated"
+          style={{minWidth:320}}
+        />
 
-          {/* Sale Price For Listing Field */}
-          <input
-            type="text"
-            name="description"
-            className={styles.textInput}
-            placeholder="Description"
-            style={{ minWidth: "920px", minHeight:"200px" }}
-          />
-
-          {/* Sale Price For Listing Field */}
-          <input
-            type="text"
-            name="price"
-            className={styles.textInput}
-            placeholder="Price in Reciprocoin"
-            style={{ minWidth: "320px" }}
-          />
-
-          <button
-            type="submit"
-            className={styles.mainButton}
-            style={{ marginTop: 32, borderStyle: "none" }}
-            disabled={creatingListing}
-          >
-            {creatingListing ? "Loading..." : "Create Gig"}
-          </button>
-        </div>
+      </label>
+      <br/>
+      <button className={styles.mainButton}
+      type="submit"
+      
+      >Submit</button>
+     
       </div>
+        
     </form>
-  );
-};
 
-export default Create;
+  );
+}
+
+export default FormExample;

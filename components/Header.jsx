@@ -25,6 +25,9 @@ export default function Header() {
       </div>
 
       <div className={styles.right}>
+      <Link href="/account">
+          <a className={styles.headerItem} style={{marginRight:20}}>My NFTs</a>
+        </Link>
         {address ? (
           <>
             <a
