@@ -22,21 +22,22 @@ export default function Header() {
         <Link href="/listings">
           <a className={styles.headerItem}>Listings</a>
         </Link>
+        <Link href="/account">
+          <a className={styles.headerItem} style={{minWidth:100}}>My NFTs</a>
+        </Link>
       </div>
 
       <div className={styles.right}>
-      <Link href="/account">
-          <a className={styles.headerItem} style={{marginRight:20}}>My NFTs</a>
-        </Link>
         {address ? (
           <>
             <a
               className={styles.secondaryButton}
               onClick={() => disconnectWallet()}
             >
-             <ConnectWallet accentColor="#5204BF" colorMode="dark" />
+              Disconnect
             </a>
-            
+            <p className={styles.verticalSpacer}>|</p>
+            <p>{address.slice(0, 6).concat("...").concat(address.slice(-4))}</p>
           </>
         ) : (
           <ConnectWallet accentColor="#5204BF" colorMode="dark" />
