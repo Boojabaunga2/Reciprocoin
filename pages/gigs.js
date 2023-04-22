@@ -41,7 +41,7 @@ return(
 {data.length && data.map(item =>{
 
 return<>
-<form style={{width:500}}>
+<form style={{width:500 }}>
 <MediaRenderer style={{width:200}} src={item.metadata.image}/>
 <h1 style={{fontSize:20}}>{item.metadata.name}</h1>
 <h1 style={{fontSize:10}}>owned by {item.owner} </h1>
