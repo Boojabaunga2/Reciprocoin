@@ -319,7 +319,7 @@ export default function Listings() {
   async function getNFTs(){
     try{         
    
-   const contract = await sdk.getContract("0xE98dBFF5EDA0c590d46FBA96A07Da908E9C69Ee4");
+   const contract = await sdk.getContract("0x4Da870c6c878883EE5c4DbcB80ff92F6d2a8F77d");
    const nfts = await contract.erc721.getOwned(walletaddress);
  
    setData(nfts)
@@ -342,19 +342,19 @@ export default function Listings() {
   async function buyNFT(id){
     const dataShouldMint = data.find(item => item.metadata.id ===  id)
     const marketplacecontract = await sdk.getContract(
-      "0xD9572aA7584f7d994a065f46A024a0668D654871", // The address of your smart contract
+      "0x4Da870c6c878883EE5c4DbcB80ff92F6d2a8F77d", // The address of your smart contract
       abi,
      
     );
 
 
       console.log(dataShouldMint.metadata.id)
-    //  const data = await marketplacecontract.call("buy",
+     const data = await marketplacecontract.call("buy",
       
-    //   [dataShouldMint.metadata.id]
+      [dataShouldMint.metadata.id]
       
       
-    //   );
+      );
    
      
 

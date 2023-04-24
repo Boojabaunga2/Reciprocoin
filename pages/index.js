@@ -18,9 +18,9 @@ import { Signer } from "ethers";
 
 const FormExample = () => {
   const walletaddress=useAddress()
-  const asdk = ThirdwebSDK.fromPrivateKey("4d0d9d9d4b7cab8986aa90db0c7ed07964a8acf5405bbf746aebd7f1c80e87b6", "mumbai");
+  const asdk = ThirdwebSDK.fromPrivateKey("4d0d9d9d4b7cab8986aa90db0c7ed07964a8acf5405bbf746aebd7f1c80e87b6", "polygon");
   const { contract: nftCollection } = useContract(
-    "0xE98dBFF5EDA0c590d46FBA96A07Da908E9C69Ee4",
+    "0x4Da870c6c878883EE5c4DbcB80ff92F6d2a8F77d",
     "nft-collection"
   );
   const abi=[
@@ -324,7 +324,7 @@ const FormExample = () => {
       "type": "function"
     }
   ]
-  const sdk = new ThirdwebSDK("mumbai");
+  const sdk = new ThirdwebSDK("polygon");
   const [file, setFile] = useState();
   const fileInputRef = useRef(null);
   const [formData, setFormData] = useState({});
@@ -382,7 +382,7 @@ const FormExample = () => {
     }
 
     const nftContract = await asdk.getContract(
-      "0xE98dBFF5EDA0c590d46FBA96A07Da908E9C69Ee4",
+      "0x4Da870c6c878883EE5c4DbcB80ff92F6d2a8F77d",
       "nft-collection"
     );
 
@@ -421,8 +421,8 @@ const FormExample = () => {
     setContractAddress(mintedTokenId)
     try{
  
-      const marketplacecontract = await asdk.getContract(
-        "0xD9572aA7584f7d994a065f46A024a0668D654871", // The address of your smart contract
+      const marketplacecontract = await sdk.getContract(
+        "0x4Da870c6c878883EE5c4DbcB80ff92F6d2a8F77d", // The address of your smart contract
         abi,
        
       );
