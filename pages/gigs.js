@@ -12,7 +12,7 @@ const getMint = () => {
 
     (async()=> {
         try { 
-const contract = await sdk.getContract("0xA09677FCDcaF83C5922d4A13E71ffb1C92617996");
+const contract = await sdk.getContract("0x9650CF55b186ECfcf6cC55B8769AE20ce292ffb8");
 const nfts = await contract.erc721.getAll();
 console.log(nfts)
 setData(nfts)
