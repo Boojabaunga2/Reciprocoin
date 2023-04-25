@@ -4,6 +4,7 @@ import {
       useContract,
       useAddress,
       useContractWrite,
+      useSigner,
       
 } from "@thirdweb-dev/react";
 import { ThirdwebSDK } from "@thirdweb-dev/sdk";
@@ -18,9 +19,10 @@ import { Signer } from "ethers";
 
 const FormExample = () => {
   const walletaddress=useAddress()
-  const asdk = ThirdwebSDK.fromPrivateKey("4d0d9d9d4b7cab8986aa90db0c7ed07964a8acf5405bbf746aebd7f1c80e87b6", "polygon");
+  
+  const asdk = ThirdwebSDK.fromPrivateKey("561bfc90be6ca87e5e5e932fbf9b22fc482bfd35649d23e972a554e6e18ef407", "mumbai");
   const { contract: nftCollection } = useContract(
-    "0x4Da870c6c878883EE5c4DbcB80ff92F6d2a8F77d",
+    "0x54c0e3bD955Afe6091F9e1403780288B7c61575d",
     "nft-collection"
   );
   const abi=[
@@ -324,7 +326,8 @@ const FormExample = () => {
       "type": "function"
     }
   ]
-  const sdk = new ThirdwebSDK("polygon");
+  const signer=useSigner()
+  const sdk = ThirdwebSDK.fromSigner(signer);
   const [file, setFile] = useState();
   const fileInputRef = useRef(null);
   const [formData, setFormData] = useState({});
@@ -358,31 +361,31 @@ const FormExample = () => {
   async function DeployContract(){
      const img = await sdk.storage.upload(file);
   const uuid = uuidv4()
-  const metadata = {  
-    name: formData.nftName,
-    description: formData.nftDescription,
-    image: img,
-    fee_recipient: formData.royaltyfeeaddress,
-    seller_fee_basis_points: parseInt(formData.royalties),
-    "attributes": [
-      {
-        "trait_type": "type",
-        "value": "Main-NFT"
-      },{
-        "trait_type": "ID",
-        "value": uuid
-      },
-      {
-        "trait_type": "Price",
-        "value": formData.price
-      },
-    ]
+  // const metadata = {  
+  //   name: formData.nftName,
+  //   description: formData.nftDescription,
+  //   image: img,
+  //   fee_recipient: formData.royaltyfeeaddress,
+  //   seller_fee_basis_points: parseInt(formData.royalties),
+  //   "attributes": [
+  //     {
+  //       "trait_type": "type",
+  //       "value": "Main-NFT"
+  //     },{
+  //       "trait_type": "ID",
+  //       "value": uuid
+  //     },
+  //     {
+  //       "trait_type": "Price",
+  //       "value": formData.price
+  //     },
+  //   ]
     
 
-    }
+  //   }
 
     const nftContract = await asdk.getContract(
-      "0x4Da870c6c878883EE5c4DbcB80ff92F6d2a8F77d",
+      "0x54c0e3bD955Afe6091F9e1403780288B7c61575d",
       "nft-collection"
     );
 
@@ -422,13 +425,13 @@ const FormExample = () => {
     try{
  
       const marketplacecontract = await sdk.getContract(
-        "0x4Da870c6c878883EE5c4DbcB80ff92F6d2a8F77d", // The address of your smart contract
+        "0x9650CF55b186ECfcf6cC55B8769AE20ce292ffb8", // The address of your smart contract
         abi,
        
       );
       const data = await marketplacecontract.call("createListing",
       
-      [savecontractAddress,formData.price]
+      [mintedTokenId,formData.price]
       
       
       );
