@@ -18,9 +18,9 @@ import axios from 'axios';
 const FormExample = () => {
 const [data, setData] = useState([])
   const walletaddress=useAddress()
-  const asdk = ThirdwebSDK.fromPrivateKey("4d0d9d9d4b7cab8986aa90db0c7ed07964a8acf5405bbf746aebd7f1c80e87b6", "mumbai");
+  const asdk = ThirdwebSDK.fromPrivateKey("561bfc90be6ca87e5e5e932fbf9b22fc482bfd35649d23e972a554e6e18ef407", "mumbai");
   const { contract: nftCollection } = useContract(
-    "0xA09677FCDcaF83C5922d4A13E71ffb1C92617996",
+    "0x54c0e3bD955Afe6091F9e1403780288B7c61575d",
     "nft-collection"
   );
   const sdk = new ThirdwebSDK("mumbai");
@@ -329,7 +329,7 @@ const [data, setData] = useState([])
   async function getNFTs(){
  try{         
 
-const contract = await sdk.getContract("0xE98dBFF5EDA0c590d46FBA96A07Da908E9C69Ee4");
+const contract = await sdk.getContract("0x54c0e3bD955Afe6091F9e1403780288B7c61575d");
 const nfts = await contract.erc721.getOwned(walletaddress);
 console.log(nfts)
 setData(nfts)
