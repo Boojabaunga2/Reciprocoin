@@ -10,10 +10,12 @@ import { MARKETPLACE_ADDRESS } from "../const/contractAddresses";
 import styles from "../styles/Theme.module.css";
 import { ThirdwebSDK } from "@thirdweb-dev/sdk";
 import { MediaRenderer } from "@thirdweb-dev/react";
+import { useSigner } from "@thirdweb-dev/react";
 
 export default function Listings() {
   const walletaddress=useAddress()
-  const sdk = new ThirdwebSDK("mumbai");
+  const signer=useSigner()
+  let sdk = new ThirdwebSDK("mumbai");
   const [data, setData] = useState([])
   const abi=[
     {
@@ -316,17 +318,23 @@ export default function Listings() {
       "type": "function"
     }
   ]
+
+  if(walletaddress){
+
+   sdk = ThirdwebSDK.fromSigner(signer);
+
+  }
+
   async function getNFTs(){
-    try{         
+    try{          
    
-   const contract = await sdk.getContract("0x4Da870c6c878883EE5c4DbcB80ff92F6d2a8F77d");
-   const nfts = await contract.erc721.getOwned(walletaddress);
+   const contract = await sdk.getContract("0x54c0e3bD955Afe6091F9e1403780288B7c61575d");
+   const nfts = await contract.erc721.getAll();
  
    setData(nfts)
    
    } catch (err) {
-       console.log(err)
-    
+    console.log(err)
    }
      }
    getNFTs()
@@ -341,20 +349,48 @@ export default function Listings() {
   }
   async function buyNFT(id){
     const dataShouldMint = data.find(item => item.metadata.id ===  id)
+
+
+    console.log("setting allowance to the marketplace contract for rpc token")
+
+    const tokencontract = await sdk.getContract("0x11aA92231c097409310ab93304137cFC37D114Cd");
+    await tokencontract.erc20.setAllowance("0x9650CF55b186ECfcf6cC55B8769AE20ce292ffb8", dataShouldMint?.metadata?.attributes[2]?.value);
+    try{
     const marketplacecontract = await sdk.getContract(
-      "0x4Da870c6c878883EE5c4DbcB80ff92F6d2a8F77d", // The address of your smart contract
+      "0x9650CF55b186ECfcf6cC55B8769AE20ce292ffb8", // The address of your smart contract
       abi,
      
     );
+    const data = await marketplacecontract.call("buy",
+    
+    [dataShouldMint?.metadata?.id]
+    
+    
+    );
+    }
+    catch(err){
+
+      
+    }
 
 
+
+
+    // const marketplacecontract = await sdk.getContract(
+    //   "0x4Da870c6c878883EE5c4DbcB80ff92F6d2a8F77d", // The address of your smart contract
+    //   abi,
+     
+    // );
+
+
+    //   console.log(dataShouldMint.metadata.id)
+    //  const data = await marketplacecontract.call("buy",
+      
+    //   [dataShouldMint.metadata.id]
+      
+      
+      // );
       console.log(dataShouldMint.metadata.id)
-     const data = await marketplacecontract.call("buy",
-      
-      [dataShouldMint.metadata.id]
-      
-      
-      );
    
      
 
