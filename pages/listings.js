@@ -332,7 +332,7 @@ export default function Listings() {
       try { 
          const data = await axios.get('/api/read_listings');
         //  console.log('data', )
-    
+        
          setData(data?.data?.data)
         
           // Send form data to the API endpoint
@@ -357,51 +357,56 @@ export default function Listings() {
 
   }
   async function buyNFT(id){
-    const dataShouldMint = data.find(item => item.metadata.id ===  id)
+    const dataShouldMint = data.find(item => item._id ===  id)
 
+    console.log(dataShouldMint)
 
     console.log("setting allowance to the marketplace contract for rpc token")
-
-    const tokencontract = await sdk.getContract("0x11aA92231c097409310ab93304137cFC37D114Cd");
-    await tokencontract.erc20.setAllowance("0x9650CF55b186ECfcf6cC55B8769AE20ce292ffb8", dataShouldMint?.metadata?.attributes[2]?.value);
     try{
+    const tokencontract = await sdk.getContract("0x11aA92231c097409310ab93304137cFC37D114Cd");
+    await tokencontract.erc20.setAllowance("0x9650CF55b186ECfcf6cC55B8769AE20ce292ffb8", dataShouldMint?.price);
+
+
+
+
     const marketplacecontract = await sdk.getContract(
       "0x9650CF55b186ECfcf6cC55B8769AE20ce292ffb8", // The address of your smart contract
       abi,
      
     );
-    const data = await marketplacecontract.call("buy",
-    
-    [dataShouldMint?.metadata?.id]
-    
-    
-    );
+
+
+      // console.log(dataShouldMint.metadata.id)
+     const data = await marketplacecontract.call("buy",
+      
+      [dataShouldMint.tokenID]
+      
+      
+      );
     }
-    catch(err){
+      catch(err){
+        console.log(err)
+        return;
+         }
+         const {data : deletionResponse}= await  axios({
+          method: 'DELETE',
+          url: '/api/delete_api',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          data: {id}
+        })
+        const release={
 
-      
-    }
-
-
-
-
-    // const marketplacecontract = await sdk.getContract(
-    //   "0x4Da870c6c878883EE5c4DbcB80ff92F6d2a8F77d", // The address of your smart contract
-    //   abi,
-     
-    // );
-
-
-    //   console.log(dataShouldMint.metadata.id)
-    //  const data = await marketplacecontract.call("buy",
-      
-    //   [dataShouldMint.metadata.id]
-      
-      
-      // );
-      console.log(dataShouldMint.metadata.id)
-   
-     
+          tokenID: dataShouldMint.tokenID
+        }
+        try {
+          // Send form data to the API endpoint
+          await axios.post('/api/post_releasepayment', release);
+         
+          } catch (err) {
+       
+          }
 
 
     }
@@ -420,6 +425,7 @@ return<>
 <h1 style={{fontSize:20}}>NFT Name: {item.name}</h1>
 <h1 style={{fontSize:15}}>Description: {item.description}</h1>
 <h1 style={{fontSize:10}}>Price: {item.price/1000000000000000000} Reciprocoin</h1>
+<h1 style={{fontSize:15}}>TokenID {item.tokenID}</h1>
 
 <button className={styles.mainButton} style={{width:250, marginTop:50}}
       type="submit" >Buy NFT</button>

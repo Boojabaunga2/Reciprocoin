@@ -421,7 +421,7 @@ const FormExample = () => {
         },
         {
           "trait_type": "Price",
-          "value": formData.price
+          "value": formData.price*1000000000000000000
         }
       
       ]
@@ -465,7 +465,7 @@ const FormExample = () => {
         name: formData.name,
         description:formData.description,
         image: img,
-        price: formData.price,
+        price: formData.price*1000000000000000000,
         collectionAddress: "0x54c0e3bD955Afe6091F9e1403780288B7c61575d",
         tokenID: mintedTokenId,
       }
