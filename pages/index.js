@@ -445,18 +445,20 @@ const FormExample = () => {
         abi,
        
       );
+      const priceineth=formData.price*1000000000000000000
+      console.log(priceineth)
+
       const data = await marketplacecontract.call("createListing",
       
-      [mintedTokenId,formData.price]
+      [mintedTokenId,priceineth.toString()]
       
       
       );
         console.log(data)
       }
       catch(err){
-    
       console.log(err)
-    
+      return;
 
       }
       const mainNftData = {
