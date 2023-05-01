@@ -1,4 +1,4 @@
-const monkeyman = require ('../models/lazymint')
+const monkeyman = require ('../models/models_listings')
 export default async (req, res) => {
   try {
     // Save form data to the database

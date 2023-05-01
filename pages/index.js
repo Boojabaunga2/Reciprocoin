@@ -471,7 +471,7 @@ const FormExample = () => {
       }
       try {
         // Send form data to the API endpoint
-        await axios.post('/api/lazymintapi', mainNftData);
+        await axios.post('/api/post_listings', mainNftData);
         setStatus('Minted');
         } catch (err) {
         setStatus('Error: ' + err);

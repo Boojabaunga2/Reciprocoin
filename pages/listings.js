@@ -11,6 +11,8 @@ import styles from "../styles/Theme.module.css";
 import { ThirdwebSDK } from "@thirdweb-dev/sdk";
 import { MediaRenderer } from "@thirdweb-dev/react";
 import { useSigner } from "@thirdweb-dev/react";
+import { useEffect } from "react";
+import axios from 'axios';
 
 export default function Listings() {
   const walletaddress=useAddress()
@@ -325,20 +327,27 @@ export default function Listings() {
 
   }
 
-  async function getNFTs(){
-    try{          
-   
-   const contract = await sdk.getContract("0x54c0e3bD955Afe6091F9e1403780288B7c61575d");
-   const nfts = await contract.erc721.getAll();
- 
-   setData(nfts)
-   
-   } catch (err) {
-    console.log(err)
+  const readListings = () => {
+    (async()=> {
+      try { 
+         const data = await axios.get('/api/read_listings');
+        //  console.log('data', )
+    
+         setData(data?.data?.data)
+        
+          // Send form data to the API endpoint
+         
+          } catch (err) {
+          console.log(err)
+          }
+    
+     })()
    }
-     }
-   getNFTs()
-
+   useEffect(()=> {
+    readListings()
+         
+          
+    }, [])
 
 
    const handleSubmit=(e, id)=>{
@@ -406,12 +415,12 @@ export default function Listings() {
 {data.length && data.map(item =>{
 
 return<>
-<form style={{width:500 }} onSubmit={(e) => handleSubmit(e, item.metadata.id)} >
-<MediaRenderer style={{width:500, minHeight:700, maxHeight:900}} src={item.metadata.image} />
-<h1 style={{fontSize:15, marginLeft:400, marginTop:-400, width:500}}>Name: {item.metadata.name}</h1>
-<h1 style={{fontSize:15, marginLeft:400, width:500}}>Description {item.metadata.description}</h1>
-<h1 style={{fontSize:15, marginLeft:400, width:500}}>Token ID: {item.metadata.id}</h1>
-<h1 style={{fontSize:15, marginLeft:400, width:500}}>Price: {item.metadata.attributes[2].value/1000000000000000000} RPC</h1>
+<form style={{width:500, marginTop:100 }} onSubmit={(e) => handleSubmit(e, item._id)} >
+<MediaRenderer style={{width:200}} src = {item.image}/>
+<h1 style={{fontSize:20}}>NFT Name: {item.name}</h1>
+<h1 style={{fontSize:15}}>Description: {item.description}</h1>
+<h1 style={{fontSize:10}}>Price: {item.price/1000000000000000000} Reciprocoin</h1>
+
 <button className={styles.mainButton} style={{width:250, marginTop:50}}
       type="submit" >Buy NFT</button>
 {/* <button className={styles.mainButton} onClick={createListing}>List</button> */}
