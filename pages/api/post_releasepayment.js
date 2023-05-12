@@ -1,4 +1,4 @@
-const monkeyman = require ('../models/models_releasepayment')
+const monkeyman = require ('../../models/models_releasepayment')
 export default async (req, res) => {
   try {
     // Save form data to the database

@@ -13,6 +13,8 @@ import { MediaRenderer } from "@thirdweb-dev/react";
 import { useSigner } from "@thirdweb-dev/react";
 import { useEffect } from "react";
 import axios from 'axios';
+import Router from 'next/router'
+
 
 export default function Listings() {
   const walletaddress=useAddress()
@@ -408,6 +410,7 @@ export default function Listings() {
        
           }
 
+          Router.reload(window.location.pathname);
 
     }
    return(
